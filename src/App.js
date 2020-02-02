@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-filename-extension */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -16,43 +16,34 @@ import Header from './components/header/header.component';
 import { checkUserSession } from './redux/user/user.actions';
 import { selectCurrentUser } from './redux/user/user.selectors';
 
-class App extends React.Component {
-  // unsubscribeFromAuth = null;
-
-  componentDidMount() {
-    const { checkUserSesh } = this.props;
+const App = ({ checkUserSesh, currentUser }) => {
+  useEffect(() => {
     checkUserSesh();
-  }
+  }, [checkUserSesh]);
 
-  componentWillUnmount() {
-    this.unsubscribeFromAuth();
-  }
+  return (
+    <div>
+      <Header />
+      <Switch>
+        <Route exact path="/" component={HomePage} />
+        <Route path="/shop" component={ShopPage} />
+        <Route exact path="/checkout" component={CheckoutPage} />
+        <Route
+          exact
+          path="/signin"
+          render={() => (currentUser ? (
+            <Redirect to="/" />
+          ) : (
+            <SignInAndSignUpPage />
+          ))}
+        />
+        {' '}
 
-  render() {
-    const { currentUser } = this.props;
-    return (
-      <div>
-        <Header />
-        <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/shop" component={ShopPage} />
-          <Route exact path="/checkout" component={CheckoutPage} />
-          <Route
-            exact
-            path="/signin"
-            render={() => (currentUser ? (
-              <Redirect to="/" />
-            ) : (
-              <SignInAndSignUpPage />
-            ))}
-          />
-          {' '}
+      </Switch>
+    </div>
+  );
+};
 
-        </Switch>
-      </div>
-    );
-  }
-}
 
 const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
